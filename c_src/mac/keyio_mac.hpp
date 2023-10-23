@@ -6,6 +6,11 @@
 #include <map>
 #include <iostream>
 #include <mach/mach_error.h>
+#include <AvailabilityMacros.h>
+
+#if !defined (MAC_OS_X_VERSION_12_0) || (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_12_0)
+    #define kIOMainPortDefault kIOMasterPortDefault
+#endif
 
 int init_sink(void);
 int exit_sink(void);
@@ -157,7 +162,7 @@ void monitor_kb(char *product) {
     CFRelease(cfValue);
     io_iterator_t iter = IO_OBJECT_NULL;
     CFRetain(matching_dictionary);
-    kr = IOServiceGetMatchingServices(kIOMasterPortDefault,
+    kr = IOServiceGetMatchingServices(kIOMainPortDefault,
                                       matching_dictionary,
                                       &iter);
     if(kr != KERN_SUCCESS) {
@@ -166,7 +171,7 @@ void monitor_kb(char *product) {
     }
     listener_loop = CFRunLoopGetCurrent();
     open_matching_devices(product, iter);
-    IONotificationPortRef notification_port = IONotificationPortCreate(kIOMasterPortDefault);
+    IONotificationPortRef notification_port = IONotificationPortCreate(kIOMainPortDefault);
     CFRunLoopSourceRef notification_source = IONotificationPortGetRunLoopSource(notification_port);
     CFRunLoopAddSource(listener_loop, notification_source, kCFRunLoopDefaultMode);
     CFRetain(matching_dictionary);

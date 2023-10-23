@@ -1,5 +1,10 @@
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hidsystem/IOHIDShared.h>
+#include <AvailabilityMacros.h>
+
+#if !defined (MAC_OS_X_VERSION_12_0) || (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_12_0)
+    #define kIOMainPortDefault kIOMasterPortDefault
+#endif
 
 int main() {
     CFMutableDictionaryRef matching_dictionary = IOServiceMatching(kIOHIDDeviceKey);
@@ -18,7 +23,7 @@ int main() {
     CFDictionarySetValue(matching_dictionary,CFSTR(kIOHIDDeviceUsageKey),cfValue);
     CFRelease(cfValue);
     io_iterator_t iter = IO_OBJECT_NULL;
-    kern_return_t r = IOServiceGetMatchingServices(kIOMasterPortDefault,
+    kern_return_t r = IOServiceGetMatchingServices(kIOMainPortDefault,
                                                    matching_dictionary,
                                                    &iter);
     if(r != KERN_SUCCESS) {
